@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
+
 class LinkedInSpider(scrapy.Spider):
     name = 'linkedin_spider'
     start_urls = ['https://www.linkedin.com/']
@@ -86,7 +87,8 @@ class LinkedInSpider(scrapy.Spider):
                 print(next_button)
                 next_button.click()
             except TimeoutException:
-                print("Le bouton 'Suivant' n'a pas été trouvé ou n'est pas cliquable après un délai d'attente prolongé.")
+                print(
+                    "Le bouton 'Suivant' n'a pas été trouvé ou n'est pas cliquable après un délai d'attente prolongé.")
             except NoSuchElementException:
                 print("L'élément 'Suivant' n'a pas été trouvé sur la page.")
                 break
@@ -141,39 +143,59 @@ class LinkedInSpider(scrapy.Spider):
 
             time.sleep(3)
 
+            exp_list = []
             sel = Selector(text=driver.page_source)
-            experiences = sel.css('li.pvs-list__paged-list-item')
 
-            experience_list = []
+            exps_section = sel.css('div.ezsPJQgvyirZceoKYlfbraYjrJQFWgbUaTM')
 
-            for experience in experiences:
-                title_job_element = experience.css('span.visually-hidden::text').get()
-                title_job = title_job_element.strip() if title_job_element else None
+            for section in exps_section:
+                if section.css('.scaffold-finite-scroll__content'):
+                    company_name = section.css('div.display-flex div div div span::text').get().strip()
+                    job_role_elements = section.css('.pvs-list__paged-list-item')
 
-                date_element = experience.css('span.pvs-entity__caption-wrapper::text').get()
-                date = date_element.strip() if date_element else None
+                    for job_role in job_role_elements:
+                        role_element = job_role.css('.mr1.hoverable-link-text.t-bold')
+                        if role_element:
 
-                url_company_element = experience.css('a::attr(href)').get()
-                url_company = url_company_element if url_company_element else None
+                            role = role_element.css('span::text').get().strip()
+                            date_element = job_role.css('.pvs-entity__caption-wrapper')
+                            date = date_element.css('span::text').get().strip() if date_element else ''
 
-                name_company_element = experience.css('span.t-14.t-normal span[aria-hidden="true"]::text').get()
-                if name_company_element:
-                    name_company_parts = name_company_element.split('·')  # Utilisez un autre délimiteur si nécessaire
-                    name_company = name_company_parts[0].strip() if name_company_parts else None
-                else:
-                    name_company = None
+                            # contract_type = job_role.css('span.t-14.t-normal span::text')
 
-                ville_elements = experience.css('span.t-14.t-normal.t-black--light::text')
-                ville = ville_elements[-1].get().strip() if ville_elements else None
+                            # location = job_role.css('span.t-14.t-normal.t-black--light:nth-child(4) span::text')
 
-                # Add the experience to the list
-                experience_list.append({
-                    'Title': title_job,
-                    'Date': date,
-                    'Company URL': url_company,
-                    'Company Name': name_company,
-                    'City': ville,
-                })
+                            exp_list.append({
+                                'Company': company_name,
+                                'Position': role,
+                                'Date': date,
+                                # 'Contract Type': contract_type,
+                                # 'Location': location,
+                            })
+
+                elif section.css('.pvs-entity--padded'):
+                    name_company_element = section.css('span.t-14.t-normal span[aria-hidden="true"]::text').get()
+                    if name_company_element:
+                        name_company_parts = name_company_element.split(
+                            '·')
+                        company_name = name_company_parts[0].strip() if name_company_parts else None
+                    else:
+                        company_name = None
+
+                    title_job_element = section.css('span.visually-hidden::text').get()
+                    role = title_job_element.strip() if title_job_element else None
+
+                    date_element = section.css('span.pvs-entity__caption-wrapper::text').get()
+                    date = date_element.strip() if date_element else None
+
+                    # url_company_element = exps_section.css('a::attr(href)').get()
+                    # url_company = url_company_element if url_company_element else None
+
+                    exp_list.append({
+                        'Company': company_name,
+                        'Position': role,
+                        'Date': date,
+                    })
 
             time.sleep(3)
 
@@ -188,7 +210,8 @@ class LinkedInSpider(scrapy.Spider):
             education_list = []
 
             for education in educations:
-                school_element = education.css('div.display-flex.align-items-center.mr1.hoverable-link-text.t-bold span[aria-hidden="true"]::text').get()
+                school_element = education.css(
+                    'div.display-flex.align-items-center.mr1.hoverable-link-text.t-bold span[aria-hidden="true"]::text').get()
                 school_name = school_element.strip() if school_element else None
 
                 degree_field_element = education.css('span.t-14.t-normal span[aria-hidden="true"]::text').get()
@@ -232,12 +255,11 @@ class LinkedInSpider(scrapy.Spider):
                     'skill_title': skill,
                 })
 
-
             # Add the profile to the list
             profiles.append({
                 'Name': name,
                 'Description': description,
-                'Experience': experience_list,
+                'Experience': exp_list,
                 'Education': education_list,
                 'Skills': skills_list,
             })
