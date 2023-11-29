@@ -3,10 +3,36 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+from fake_useragent import UserAgent
 from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+
+from scrapy import signals
+import random
+
+from scrapy import signals
+from itemadapter import is_item, ItemAdapter
+from fake_useragent import UserAgent
+
+
+class RandomUserAgentMiddleware:
+    def __init__(self, user_agents):
+        self.user_agents = user_agents or []
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            user_agents=crawler.settings.getlist('USER_AGENT_LIST') or UserAgent().data_browsers
+        )
+
+    def process_request(self, request, spider):
+        if self.user_agents:
+            request.headers.setdefault('User-Agent', self._get_random_user_agent())
+
+    def _get_random_user_agent(self):
+        return UserAgent().random
 
 
 class LinkedinCrawlSpiderMiddleware:

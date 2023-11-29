@@ -2,6 +2,7 @@ import scrapy
 import re
 import time
 import json
+import random
 from selenium.common import NoSuchElementException, TimeoutException
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium import webdriver
@@ -36,72 +37,78 @@ class LinkedInSpider(scrapy.Spider):
         password = ""
 
         driver.find_element(By.ID, 'session_key').send_keys(username)
-        time.sleep(2)
+        time.sleep(random.uniform(4, 10))
 
         driver.find_element(By.ID, 'session_password').send_keys(password)
-        time.sleep(3)
+        time.sleep(random.uniform(4, 10))
 
         driver.implicitly_wait(5)
         driver.find_element(By.XPATH, "//button[@type='submit']").click()
-        time.sleep(5)
+        time.sleep(random.uniform(4, 10))
 
-        driver.implicitly_wait(3)
+        time.sleep(random.uniform(4, 10))
 
-        search_url = 'https://www.linkedin.com/search/results/people/?keywords=miage%20nice&origin=SWITCH_SEARCH_VERTICAL&sid=Xhf'
-        driver.get(search_url)
-        driver.implicitly_wait(3)
+        # search_url = ('https://www.linkedin.com/search/results/people/?keywords=miage%20nice&origin'
+        #               '=SWITCH_SEARCH_VERTICAL&sid=Xhf')
+        # driver.get(search_url)
+        # driver.implicitly_wait(3)
+        #
+        # driver.implicitly_wait(10)
+        #
+        # all_profile_URL = []
+        #
+        # def get_url():
+        #     sel = Selector(text=driver.page_source)
+        #     profiles = sel.css('a.app-aware-link')
+        #
+        #     for profile in profiles:
+        #         href = profile.attrib.get('href')
+        #         if href:
+        #             profile_URL = re.findall(r"https://www.linkedin.com/in/([^\'\" >?$]+)", href)
+        #             if profile_URL:
+        #                 user_profile_name = profile_URL[0]
+        #                 if len(user_profile_name) > 0 and not user_profile_name.startswith("ACoAA"):
+        #                     profile_link = f"https://www.linkedin.com/in/{user_profile_name}"
+        #                     if profile_link not in all_profile_URL:
+        #                         all_profile_URL.append(profile_link)
+        #
+        # input_page = 100
+        # URLs_all_page = []
+        #
+        # for page in range(1, input_page + 1):
+        #     get_url()
+        #     time.sleep(3)
+        #     scroll_pause_time = random.uniform(0.5, 1.5)
+        #     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+        #     time.sleep(scroll_pause_time)
+        #     time.sleep(7)
+        #
+        #     try:
+        #         next_button = WebDriverWait(driver, 20).until(
+        #             EC.element_to_be_clickable((By.XPATH,
+        #                                         "//button[@aria-label='Next' and contains(@class, "
+        #                                         "'artdeco-pagination__button--next')]"))
+        #         )
+        #         print(next_button)
+        #         next_button.click()
+        #     except TimeoutException:
+        #         print(
+        #             "Le bouton 'Suivant' n'a pas été trouvé ou n'est pas cliquable après un délai d'attente prolongé.")
+        #     except NoSuchElementException:
+        #         print("L'élément 'Suivant' n'a pas été trouvé sur la page.")
+        #         break
+        #
+        #     URLs_all_page = URLs_all_page + all_profile_URL
+        #     time.sleep(3)
+        #
+        # # Remove duplicates from URLs_all_page
+        # URLs_all_page = list(set(URLs_all_page))
+        #
+        # # Write to the JSON file only once, after all URLs have been collected
+        # with open('links.json', 'w') as f:
+        #     json.dump([{'url': url} for url in URLs_all_page], f)
 
-        driver.implicitly_wait(10)
-
-        all_profile_URL = []
-
-        def get_url():
-            sel = Selector(text=driver.page_source)
-            profiles = sel.css('a.app-aware-link')
-
-            for profile in profiles:
-                href = profile.attrib.get('href')
-                if href:
-                    profile_URL = re.findall(r"https://www.linkedin.com/in/([^\'\" >?$]+)", href)
-                    if profile_URL:
-                        user_profile_name = profile_URL[0]
-                        if len(user_profile_name) > 0 and not user_profile_name.startswith("ACoAA"):
-                            profile_link = f"https://www.linkedin.com/in/{user_profile_name}"
-                            if profile_link not in all_profile_URL:
-                                all_profile_URL.append(profile_link)
-
-        input_page = 1
-        URLs_all_page = []
-
-        for page in range(1, input_page + 1):
-            get_url()
-            time.sleep(2)
-            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            time.sleep(5)
-
-            try:
-                next_button = WebDriverWait(driver, 20).until(
-                    EC.element_to_be_clickable((By.XPATH,
-                                                "//button[@aria-label='Next' and contains(@class, 'artdeco-pagination__button--next')]"))
-                )
-                print(next_button)
-                next_button.click()
-            except TimeoutException:
-                print(
-                    "Le bouton 'Suivant' n'a pas été trouvé ou n'est pas cliquable après un délai d'attente prolongé.")
-            except NoSuchElementException:
-                print("L'élément 'Suivant' n'a pas été trouvé sur la page.")
-                break
-
-            URLs_all_page = URLs_all_page + all_profile_URL
-            time.sleep(3)
-
-        # Remove duplicates from URLs_all_page
-        URLs_all_page = list(set(URLs_all_page))
-
-        # Write to the JSON file only once, after all URLs have been collected
-        with open('links.json', 'w') as f:
-            json.dump([{'url': url} for url in URLs_all_page], f)
+        time.sleep(random.uniform(4, 12))
 
         driver.implicitly_wait(7)
         # Visit the collected URLs
@@ -120,33 +127,33 @@ class LinkedInSpider(scrapy.Spider):
 
         # Visit each URL
         for url in urls:
-            time.sleep(3)
+            time.sleep(random.uniform(4, 11))
 
             driver.get(url['url'])
-            time.sleep(5)
+            time.sleep(random.uniform(4, 10))
 
             # Wait for the name element to be present
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h1.text-heading-xlarge')))
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h1.text-heading-xlarge')))
             name_element = driver.find_element(By.CSS_SELECTOR, 'h1.text-heading-xlarge')
             name = name_element.text
 
             # Wait for the description element to be present
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 20).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, 'div.text-body-medium.break-words')))
             description_element = driver.find_element(By.CSS_SELECTOR, 'div.text-body-medium.break-words')
             description = description_element.text
 
-            time.sleep(3)
+            time.sleep(random.uniform(4, 13))
 
             details_exp_url = url['url'] + '/details/experience/'
             driver.get(details_exp_url)
 
-            time.sleep(3)
+            time.sleep(random.uniform(4, 12))
 
             exp_list = []
             sel = Selector(text=driver.page_source)
 
-            exps_section = sel.css('div.ezsPJQgvyirZceoKYlfbraYjrJQFWgbUaTM')
+            exps_section = sel.css('div.KSbylxhLdMCJJvdLQgdLPKsaCDCmuNqXsGs')
 
             for section in exps_section:
                 if section.css('.scaffold-finite-scroll__content'):
@@ -158,9 +165,24 @@ class LinkedInSpider(scrapy.Spider):
                         if role_element:
 
                             role = role_element.css('span::text').get().strip()
-                            date_element = job_role.css('.pvs-entity__caption-wrapper')
-                            date = date_element.css('span::text').get().strip() if date_element else ''
+                            date_element_list = job_role.css('.pvs-entity__caption-wrapper::text').getall()
+                            date = date_element_list[0].strip() if date_element_list else None
 
+                            if date and ' - ' in date:
+                                date_components = date.split(' - ')
+                                date_start = date_components[0]
+                                end_and_duration = date_components[1].split(' · ')
+                                date_end = end_and_duration[0]  # Second part before '·' is the end date
+                                duration = end_and_duration[1]
+                            elif date:
+                                date_parts = date.split(' · ')
+                                date_start = date_parts[0]
+                                duration = date_parts[1]
+                                date_end = None
+                            else:
+                                date_start = None
+                                date_end = None
+                                duration = None
                             # contract_type = job_role.css('span.t-14.t-normal span::text')
 
                             # location = job_role.css('span.t-14.t-normal.t-black--light:nth-child(4) span::text')
@@ -168,7 +190,9 @@ class LinkedInSpider(scrapy.Spider):
                             exp_list.append({
                                 'Company': company_name,
                                 'Position': role,
-                                'Date': date,
+                                'Date_début': date_start,
+                                'Date_fin': date_end,
+                                'Duration': duration,
                                 # 'Contract Type': contract_type,
                                 # 'Location': location,
                             })
@@ -185,8 +209,24 @@ class LinkedInSpider(scrapy.Spider):
                     title_job_element = section.css('span.visually-hidden::text').get()
                     role = title_job_element.strip() if title_job_element else None
 
-                    date_element = section.css('span.pvs-entity__caption-wrapper::text').get()
-                    date = date_element.strip() if date_element else None
+                    date_element_list = section.css('span.pvs-entity__caption-wrapper::text').getall()
+                    date = date_element_list[0].strip() if date_element_list else None
+
+                    if date and ' - ' in date:
+                        date_components = date.split(' - ')
+                        date_start = date_components[0]
+                        end_and_duration = date_components[1].split(' · ')
+                        date_end = end_and_duration[0]  # Second part before '·' is the end date
+                        duration = end_and_duration[1]
+                    elif date:
+                        date_parts = date.split(' · ')
+                        date_start = date_parts[0]
+                        duration = date_parts[1]
+                        date_end = None
+                    else:
+                        date_start = None
+                        date_end = None
+                        duration = None
 
                     # url_company_element = exps_section.css('a::attr(href)').get()
                     # url_company = url_company_element if url_company_element else None
@@ -194,15 +234,17 @@ class LinkedInSpider(scrapy.Spider):
                     exp_list.append({
                         'Company': company_name,
                         'Position': role,
-                        'Date': date,
+                        'Date_début': date_start,
+                        'Date_fin': date_end,
+                        'Duration': duration,
                     })
 
-            time.sleep(3)
+            time.sleep(random.uniform(4, 13))
 
             details_edu_url = url['url'] + '/details/education/'
             driver.get(details_edu_url)
 
-            time.sleep(3)
+            time.sleep(random.uniform(4, 12))
 
             sel = Selector(text=driver.page_source)
             educations = sel.css('li.pvs-list__paged-list-item')
@@ -234,12 +276,12 @@ class LinkedInSpider(scrapy.Spider):
                     'date': date
                 })
 
-            time.sleep(3)
+            time.sleep(random.uniform(4, 15))
 
             details_skills_url = url['url'] + '/details/skills/'
             driver.get(details_skills_url)
 
-            time.sleep(3)
+            time.sleep(random.uniform(4, 13))
 
             sel = Selector(text=driver.page_source)
             skills = sel.css('li.pvs-list__paged-list-item')
@@ -264,6 +306,10 @@ class LinkedInSpider(scrapy.Spider):
                 'Skills': skills_list,
             })
 
-        # Write the profiles to the JSON file
-        with open('Profils.json', 'w') as f:
+            # Write the profiles list to the JSON file after scraping each profile
+            with open('../../Profils.json', 'w') as f:
+                json.dump(profiles, f)
+
+        # Write all the profiles to the JSON file
+        with open('../../Profils.json', 'w') as f:
             json.dump(profiles, f)
